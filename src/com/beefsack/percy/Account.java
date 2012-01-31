@@ -18,7 +18,13 @@ public class Account {
 	public static ArrayList<Account> findStoredAccounts(
 			ArrayList<File> locations) {
 		ArrayList<Account> accounts = new ArrayList<Account>();
-
+		for (File location : locations) {
+			for (File repoDir : location.listFiles()) {
+				try {
+					accounts.add(load(repoDir));
+				} catch (IOException e) {}
+			}
+		}
 		return accounts;
 	}
 

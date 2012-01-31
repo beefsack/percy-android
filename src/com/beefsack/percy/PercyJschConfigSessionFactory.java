@@ -9,6 +9,7 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 
 public class PercyJschConfigSessionFactory extends JschConfigSessionFactory {
+	private PercyActivity activity;
 
 	@Override
 	protected void configure(Host arg0, Session arg1) {
@@ -19,7 +20,24 @@ public class PercyJschConfigSessionFactory extends JschConfigSessionFactory {
 		JSch jsch = super.getJSch(arg0, arg1);
 		// Clear identities and load the relevant one
 		jsch.removeAllIdentity();
+		jsch.addIdentity(getActivity().getKeyForAccount(
+				getActivity().getActiveAccount()));
 		return jsch;
+	}
+
+	/**
+	 * @return the activity
+	 */
+	public PercyActivity getActivity() {
+		return activity;
+	}
+
+	/**
+	 * @param activity
+	 *            the activity to set
+	 */
+	public void setActivity(PercyActivity activity) {
+		this.activity = activity;
 	}
 
 }

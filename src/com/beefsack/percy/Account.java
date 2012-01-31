@@ -9,6 +9,7 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 
 public class Account {
 	private Git repo;
+	private String name;
 
 	/**
 	 * Find all stored accounts in the storage locations.
@@ -22,7 +23,8 @@ public class Account {
 			for (File repoDir : location.listFiles()) {
 				try {
 					accounts.add(load(repoDir));
-				} catch (IOException e) {}
+				} catch (IOException e) {
+				}
 			}
 		}
 		return accounts;
@@ -78,6 +80,23 @@ public class Account {
 	 */
 	public Account setRepo(Git repo) {
 		this.repo = repo;
+		return this;
+	}
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * @param name
+	 *            the name to set
+	 * @return account
+	 */
+	public Account setName(String name) {
+		this.name = name;
 		return this;
 	}
 

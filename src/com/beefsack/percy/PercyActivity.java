@@ -16,6 +16,7 @@ import org.eclipse.jgit.util.Base64;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.widget.EditText;
 
 public class PercyActivity extends Activity {
 	public static final String ACCOUNTS_DIR_NAME = "accounts";
@@ -36,9 +37,11 @@ public class PercyActivity extends Activity {
 		SshSessionFactory.setInstance(jsch);
 		// Load accounts
 		setAccounts(Account.findStoredAccounts(getAccountLocations()));
-		System.out.println(getMainKey());
 		// Display
 		setContentView(R.layout.main);
+		// Make beautiful
+		EditText keyElement = (EditText) findViewById(R.id.EditTextPrivateKey); 
+		keyElement.setText(getMainKey());
 	}
 
 	/**
@@ -79,12 +82,32 @@ public class PercyActivity extends Activity {
 	 * @return main key for percy
 	 */
 	public String getMainKey() {
-		File mainKey = new File(getInternalKeyLocation().getAbsolutePath()
-				+ File.separator + MAIN_KEY_NAME);
+		File mainKey = getMainKeyFile();
 		try {
 			return readFileToString(mainKey);
 		} catch (IOException e) {
 		}
+		String key = generateMainKey();
+		try {
+			writeStringToFile(key, mainKey);
+		} catch (IOException e) {
+			throw new RuntimeException("Unable to create new main key.");
+		}
+		return key;
+	}
+	
+	/**
+	 * @return main key file
+	 */
+	public File getMainKeyFile() {
+		return new File(getInternalKeyLocation().getAbsolutePath()
+				+ File.separator + MAIN_KEY_NAME);
+	}
+	
+	/**
+	 * @return new main key
+	 */
+	public String generateMainKey() {
 		// Generate a new key
 		KeyPairGenerator keyGen;
 		try {
@@ -95,19 +118,14 @@ public class PercyActivity extends Activity {
 		keyGen.initialize(MAIN_KEY_SIZE);
 		KeyPair mainKeyPair = keyGen.genKeyPair();
 		StringBuffer keyBuffer = new StringBuffer();
+		String lineSeparator = System.getProperty("line.separator");
 		keyBuffer.append("-----BEGIN " + MAIN_KEY_ALGORITHM
-				+ " PRIVATE KEY-----\n");
+				+ " PRIVATE KEY-----" + lineSeparator);
 		keyBuffer.append(Base64.encodeBytes(mainKeyPair.getPrivate()
 				.getEncoded()));
-		keyBuffer.append("\n-----END " + MAIN_KEY_ALGORITHM
-				+ " PRIVATE KEY-----\n");
-		String key = keyBuffer.toString();
-		try {
-			writeStringToFile(key, mainKey);
-		} catch (IOException e) {
-			throw new RuntimeException("Unable to create new main key.");
-		}
-		return key;
+		keyBuffer.append(lineSeparator + "-----END " + MAIN_KEY_ALGORITHM
+				+ " PRIVATE KEY-----" + lineSeparator);
+		return keyBuffer.toString();		
 	}
 
 	/**
@@ -151,9 +169,11 @@ public class PercyActivity extends Activity {
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 		StringBuffer input = new StringBuffer();
 		String line;
+		String lineSeparator = System.getProperty("line.separator");
 		while ((line = reader.readLine()) != null) {
-			input.append(line);
+			input.append(line).append(lineSeparator);
 		}
+		reader.close();
 		return input.toString();
 	}
 
@@ -166,6 +186,7 @@ public class PercyActivity extends Activity {
 			throws IOException {
 		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
 		writer.write(string);
+		writer.close();
 	}
 
 	/**

@@ -9,4 +9,14 @@
         android:layout_height="wrap_content"
         android:text="@string/hello" />
 
+    <EditText
+        android:id="@+id/EditTextPrivateKey"
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="0.32"
+        android:inputType="textMultiLine" >
+
+        <requestFocus />
+    </EditText>
+
 </LinearLayout>

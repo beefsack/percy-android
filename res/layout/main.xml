@@ -2,21 +2,19 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
-    <TextView
-        android:layout_width="fill_parent"
+    <ImageView
+        android:id="@+id/imageViewTitle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hello" />
+        android:layout_gravity="center"
+        android:src="@drawable/title" android:contentDescription="@string/title"/>
 
-    <EditText
-        android:id="@+id/EditTextPrivateKey"
+    <ListView
+        android:id="@+id/listViewAccounts"
         android:layout_width="fill_parent"
-        android:layout_height="0dip"
-        android:layout_weight="0.32"
-        android:inputType="textMultiLine" >
-
-        <requestFocus />
-    </EditText>
+        android:layout_height="wrap_content" >
+    </ListView>
 
 </LinearLayout>

@@ -80,6 +80,8 @@ public class Account {
 	 */
 	public Account setRepo(Git repo) {
 		this.repo = repo;
+		File parent = repo.getRepository().getDirectory().getParentFile();
+		setName(parent == null ? "" : parent.getName());
 		return this;
 	}
 
@@ -98,6 +100,14 @@ public class Account {
 	public Account setName(String name) {
 		this.name = name;
 		return this;
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return getName();
 	}
 
 }

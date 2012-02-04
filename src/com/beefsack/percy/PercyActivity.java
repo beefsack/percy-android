@@ -15,8 +15,15 @@ import org.eclipse.jgit.transport.SshSessionFactory;
 import org.eclipse.jgit.util.Base64;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.widget.EditText;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
 
 public class PercyActivity extends Activity {
 	public static final String ACCOUNTS_DIR_NAME = "accounts";
@@ -27,21 +34,65 @@ public class PercyActivity extends Activity {
 	private ArrayList<Account> accounts;
 	private Account activeAccount;
 
-	/** Called when the activity is first created. */
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onCreate(android.os.Bundle)
+	 */
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		// Display
+		setContentView(R.layout.main);
 		// Override session factory to allow custom keys
 		PercyJschConfigSessionFactory jsch = new PercyJschConfigSessionFactory();
 		jsch.setActivity(this);
 		SshSessionFactory.setInstance(jsch);
+		// Get or generate the main key now
+		getMainKey();
+		// Register listener for list
+		ListView accountsList = (ListView) findViewById(R.id.listViewAccounts);
+		accountsList.setOnItemClickListener(new OnItemClickListener() {
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				ListView list = (ListView) view.getParent();
+				Account account = (Account) list.getItemAtPosition(position);
+				Toast.makeText(getApplicationContext(), account.getName(),
+						Toast.LENGTH_SHORT).show();
+			}
+		});
+		accountsList.setOnItemLongClickListener(new OnItemLongClickListener() {
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				ListView list = (ListView) view.getParent();
+				Account account = (Account) list.getItemAtPosition(position);
+				Toast.makeText(getApplicationContext(), account.getName(),
+						Toast.LENGTH_SHORT).show();
+				return true;
+			}
+		});
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onResume()
+	 */
+	protected void onResume() {
+		super.onResume();
+		// Loading dialog
+		ProgressDialog progress = ProgressDialog.show(this, "",
+				"Loading accounts...", true);
 		// Load accounts
 		setAccounts(Account.findStoredAccounts(getAccountLocations()));
-		// Display
-		setContentView(R.layout.main);
-		// Make beautiful
-		EditText keyElement = (EditText) findViewById(R.id.EditTextPrivateKey); 
-		keyElement.setText(getMainKey());
+		// Insert accounts into list view
+		ListView accountsList = (ListView) findViewById(R.id.listViewAccounts);
+		ArrayAdapter<Account> arrayAdapter = new ArrayAdapter<Account>(
+				accountsList.getContext(), android.R.layout.simple_list_item_1,
+				getAccounts());
+		accountsList.setAdapter(arrayAdapter);
+		// Hide loader
+		progress.hide();
 	}
 
 	/**
@@ -95,7 +146,7 @@ public class PercyActivity extends Activity {
 		}
 		return key;
 	}
-	
+
 	/**
 	 * @return main key file
 	 */
@@ -103,7 +154,7 @@ public class PercyActivity extends Activity {
 		return new File(getInternalKeyLocation().getAbsolutePath()
 				+ File.separator + MAIN_KEY_NAME);
 	}
-	
+
 	/**
 	 * @return new main key
 	 */
@@ -125,7 +176,7 @@ public class PercyActivity extends Activity {
 				.getEncoded()));
 		keyBuffer.append(lineSeparator + "-----END " + MAIN_KEY_ALGORITHM
 				+ " PRIVATE KEY-----" + lineSeparator);
-		return keyBuffer.toString();		
+		return keyBuffer.toString();
 	}
 
 	/**

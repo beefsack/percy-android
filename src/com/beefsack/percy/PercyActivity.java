@@ -16,6 +16,7 @@ import org.eclipse.jgit.util.Base64;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -57,8 +58,13 @@ public class PercyActivity extends Activity {
 					int position, long id) {
 				ListView list = (ListView) view.getParent();
 				Account account = (Account) list.getItemAtPosition(position);
-				Toast.makeText(getApplicationContext(), account.getName(),
-						Toast.LENGTH_SHORT).show();
+				Intent accountIntent = new Intent(PercyActivity.this,
+						AccountActivity.class);
+				Bundle accountBundle = new Bundle();
+				accountBundle.putString("path", account.getRepo()
+						.getRepository().getDirectory().getAbsolutePath());
+				accountIntent.putExtras(accountBundle);
+				startActivity(accountIntent);
 			}
 		});
 		accountsList.setOnItemLongClickListener(new OnItemLongClickListener() {
